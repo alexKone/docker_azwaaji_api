@@ -45,7 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $username;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?Profile $profile = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

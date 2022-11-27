@@ -20,25 +20,26 @@ class Profile
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?string $lastname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?\DateTimeInterface $birthdate = null;
 
     #[ORM\Column(length: 255, enumType: GenderEnum::class)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?GenderEnum $gender = null;
 
     #[ORM\OneToOne(inversedBy: 'profile', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
     #[ORM\OneToOne(mappedBy: 'profile', cascade: ['persist', 'remove'])]
+    #[Groups(['user:read'])]
     private ?Address $address = null;
 
     public function getId(): ?int
