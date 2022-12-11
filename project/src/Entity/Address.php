@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Odm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,23 +19,22 @@ class Address
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read'])]
-    private ?string $street = null;
+    #[Groups(['user:collection:read', 'user:details:read', 'profile:collection:read', 'profile:details:read'])]
+    private ?string $street = '';
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read'])]
-    private ?string $city = null;
+    #[Groups(['user:collection:read', 'user:details:read', 'profile:collection:read', 'profile:details:read'])]
+    private ?string $city = '';
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read'])]
-    private ?string $zipcode = null;
+    #[Groups(['user:collection:read', 'user:details:read', 'profile:details:read'])]
+    private ?string $zipcode = '';
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read'])]
-    private ?string $country = null;
+    #[Groups(['user:collection:read', 'user:details:read', 'profile:collection:read', 'profile:details:read'])]
+    private ?string $country = '';
 
-    #[ORM\OneToOne(inversedBy: 'address', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(mappedBy: 'address', cascade: ['persist', 'remove'])]
     private ?Profile $profile = null;
 
     public function getId(): ?int
@@ -96,8 +97,14 @@ class Address
 
     public function setProfile(Profile $profile): self
     {
+        // set the owning side of the relation if necessary
+        if ($profile->getAddress() !== $this) {
+            $profile->setAddress($this);
+        }
+
         $this->profile = $profile;
 
         return $this;
     }
+
 }

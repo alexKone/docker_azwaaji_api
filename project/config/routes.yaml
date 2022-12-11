@@ -5,3 +5,11 @@ controllers:
 authentication_token:
     path: /api/auth/login
     methods: ['POST']
+
+current_user:
+    path: /api/users/me
+    methods: ['GET']
+
+api_graphql_entrypoint:
+    path: /api/graphql
+    controller: api_platform.graphql.action.entrypoint

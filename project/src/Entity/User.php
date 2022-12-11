@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\Controller\MeController;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    normalizationContext: ['groups' => ['user:read']],
+    normalizationContext: ['groups' => ['user:collection:read']],
     denormalizationContext: ['groups' => ['user:write']]
 )]
 #[UniqueEntity(fields: 'username')]
@@ -27,7 +29,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:collection:read', 'user:details:read', 'user:write', 'profile:details:read', 'profile:collection:read'])]
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
@@ -40,21 +42,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:collection:read', 'user:details:read', 'user:write', 'profile:details:read', 'profile:collection:read'])]
     #[Assert\NotBlank]
     private ?string $username;
 
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    #[Groups(['user:read'])]
-    private ?Profile $profile = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:details:read', 'user:write', 'profile:details:read', 'profile:collection:read'])]
     private ?\DateTimeInterface $last_login;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:collection:read', 'user:details:read', 'user:write', 'profile:details:read', 'profile:collection:read'])]
     private ?\DateTimeInterface $created_at;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Groups(['user:collection:read'])]
+    private ?Profile $profile = null;
 
     public function __construct()
     {
@@ -144,28 +146,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getProfile(): ?Profile
-    {
-        return $this->profile;
-    }
-
-    public function setProfile(?Profile $profile): self
-    {
-        // unset the owning side of the relation if necessary
-        if ($profile === null && $this->profile !== null) {
-            $this->profile->setUser(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($profile !== null && $profile->getUser() !== $this) {
-            $profile->setUser($this);
-        }
-
-        $this->profile = $profile;
-
-        return $this;
-    }
-
     public function getLastLogin(): ?\DateTimeInterface
     {
         return $this->last_login;
@@ -186,6 +166,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(\DateTimeInterface $created_at): self
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(Profile $profile): self
+    {
+        // set the owning side of the relation if necessary
+        if ($profile->getUser() !== $this) {
+            $profile->setUser($this);
+        }
+
+        $this->profile = $profile;
 
         return $this;
     }
