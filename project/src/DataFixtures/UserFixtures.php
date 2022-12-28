@@ -34,11 +34,7 @@ class UserFixtures extends Fixture
             MaritalStatusEnum::WIDOWER,
         ];
 
-        $hijraArr = [
-            HijraEnum::YES,
-            HijraEnum::NO,
-            HijraEnum::MAYBE
-        ];
+        $hijraArr = ['yes', 'no', 'maybe'];
 
         for ($i = 0; $i <= 100; $i++) {
             $address = new Address();
@@ -60,14 +56,14 @@ class UserFixtures extends Fixture
             $profile->setLastname($faker->lastName());
             $profile->setBirthdate($faker->dateTimeBetween('-60 years', '-18 years'));
             $profile->setFirstname($faker->firstNameMale());
-            $profile->setGender(GenderEnum::Male);
+            $profile->setGender('male');
 
             $profile->setAddress($address);
             $profile->setInformation($information);
 
             if ($i % 3 === 0) {
                 $profile->setFirstname($faker->firstNameFemale());
-                $profile->setGender(GenderEnum::Female);
+                $profile->setGender('female');
             }
 
             $createdDate = $faker->dateTimeBetween('-4 years', 'now');

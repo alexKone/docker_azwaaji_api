@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Enums\GenderEnum;
 use App\Repository\ProfileRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -65,6 +66,14 @@ class Profile
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['profile:details:read', 'profile:collection:read'])]
     private ?User $user = null;
+
+    #[ORM\OneToMany(mappedBy: 'profile', targetEntity: Invoice::class)]
+    private $invoices;
+
+    public function __construct()
+    {
+        $this->invoices = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -151,6 +160,34 @@ class Profile
     public function setUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getInvoices(): ArrayCollection
+    {
+        return $this->invoices;
+    }
+
+    public function addInvoice(Invoice $invoice): self
+    {
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices[] = $invoice;
+            $invoice->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvoice(Invoice $invoice): self
+    {
+        if ($this->invoices->contains($invoice)) {
+            $this->invoices->removeElement($invoice);
+
+            if ($invoice->getProfile() === $this) {
+                $invoice->setProfile(null);
+            }
+        }
 
         return $this;
     }
