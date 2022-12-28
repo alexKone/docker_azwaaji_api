@@ -101,7 +101,7 @@ class Information
         return $this;
     }
 
-    public function isSmoke(): bool
+    public function isSmoke(): ?bool
     {
         return $this->smoke;
     }
@@ -142,10 +142,15 @@ class Information
         return $this->profile;
     }
 
-    public function setProfile(Profile $profile): self
+    public function setProfile(?Profile $profile): self
     {
+        // unset the owning side of the relation if necessary
+        if ($profile === null && $this->profile !== null) {
+            $this->profile->setInformation(null);
+        }
+
         // set the owning side of the relation if necessary
-        if ($profile->getInformation() !== $this) {
+        if ($profile !== null && $profile->getInformation() !== $this) {
             $profile->setInformation($this);
         }
 

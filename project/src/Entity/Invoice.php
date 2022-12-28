@@ -74,7 +74,7 @@ class Invoice
         return $this;
     }
 
-    public function getProfile(): ?User
+    public function getProfile(): ?Profile
     {
         return $this->profile;
     }

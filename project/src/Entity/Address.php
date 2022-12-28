@@ -95,10 +95,15 @@ class Address
         return $this->profile;
     }
 
-    public function setProfile(Profile $profile): self
+    public function setProfile(?Profile $profile): self
     {
+        // unset the owning side of the relation if necessary
+        if ($profile === null && $this->profile !== null) {
+            $this->profile->setAddress(null);
+        }
+
         // set the owning side of the relation if necessary
-        if ($profile->getAddress() !== $this) {
+        if ($profile !== null && $profile->getAddress() !== $this) {
             $profile->setAddress($this);
         }
 
