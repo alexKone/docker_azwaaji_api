@@ -23,10 +23,6 @@ class StripeSubscription
     #[ORM\Column(type: "string", length: 255)]
     private $stripeCustomerId;
 
-    #[ORM\ManyToOne(targetEntity: "App\Entity\User", inversedBy: "stripe_subscriptions")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $user;
-
     /**
      * 'active', 'canceled'
      */
@@ -47,6 +43,9 @@ class StripeSubscription
 
     #[ORM\Column(type: "datetime")]
     private $updatedAt;
+
+    #[ORM\ManyToOne(inversedBy: 'stripe_subscriptions')]
+    private ?Profile $profile = null;
 
     public function __construct()
     {
@@ -91,18 +90,6 @@ class StripeSubscription
     public function setStripeCustomerId(string $stripeCustomerId): self
     {
         $this->stripeCustomerId = $stripeCustomerId;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
 
         return $this;
     }
@@ -175,6 +162,18 @@ class StripeSubscription
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): self
+    {
+        $this->profile = $profile;
 
         return $this;
     }

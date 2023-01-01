@@ -71,13 +71,18 @@ class Profile
     #[ORM\OneToMany(mappedBy: 'profile', targetEntity: Invoice::class)]
     private $invoices;
 
+    #[Groups(['profile:collection:read', 'profile:details:read'])]
     #[ORM\ManyToMany(targetEntity: Conversation::class, mappedBy: 'participants')]
     private $conversations;
+
+    #[ORM\OneToMany(mappedBy: 'profile', targetEntity: StripeSubscription::class)]
+    private Collection $stripe_subscriptions;
 
     public function __construct()
     {
         $this->invoices = new ArrayCollection();
         $this->conversations = new ArrayCollection();
+        $this->stripe_subscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -221,6 +226,36 @@ class Profile
     {
         if ($this->conversations->removeElement($conversation)) {
             $conversation->removeParticipant($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StripeSubscription>
+     */
+    public function getStripeSubscriptions(): Collection
+    {
+        return $this->stripe_subscriptions;
+    }
+
+    public function addStripeSubscription(StripeSubscription $stripeSubscription): self
+    {
+        if (!$this->stripe_subscriptions->contains($stripeSubscription)) {
+            $this->stripe_subscriptions->add($stripeSubscription);
+            $stripeSubscription->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStripeSubscription(StripeSubscription $stripeSubscription): self
+    {
+        if ($this->stripe_subscriptions->removeElement($stripeSubscription)) {
+            // set the owning side to null (unless already changed)
+            if ($stripeSubscription->getProfile() === $this) {
+                $stripeSubscription->setProfile(null);
+            }
         }
 
         return $this;
